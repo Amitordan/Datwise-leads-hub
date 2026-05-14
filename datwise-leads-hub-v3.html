@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datwise Leads Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a18;
+    --bg-2: #0f0f24;
+    --surface: #14142b;
+    --surface-2: #1a1a38;
+    --border: #25254a;
+    --border-glow: #3d3d7a;
+    --ink: #ffffff;
+    --ink-2: #c7c7e0;
+    --ink-3: #8888b0;
+    --ink-4: #5a5a80;
+    --violet: #8b5cf6;
+    --violet-glow: #a78bfa;
+    --blue: #3b82f6;
+    --blue-glow: #60a5fa;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+    --green: #10b981;
+    --amber: #f59e0b;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Assistant', sans-serif;
+    background: var(--bg);
+    color: var(--ink-2);
+    line-height: 1.65;
+    font-size: 15px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Grid pattern background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 800px 600px at 15% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse 600px 800px at 85% 50%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 700px 500px at 50% 100%, rgba(236, 72, 153, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .doc {
+    max-width: 880px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── Mono ─────────────────────────────── */
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  /* ─── Hero ─────────────────────────────── */
+  .hero {
+    padding: 120px 60px 100px;
+    position: relative;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--violet-glow);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    backdrop-filter: blur(10px);
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--violet-glow);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--violet-glow);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-size: 80px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #a78bfa 40%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.3));
+  }
+
+  .hero-sub {
+    font-size: 20px;
+    color: var(--ink-3);
+    max-width: 560px;
+    line-height: 1.5;
+    margin-bottom: 64px;
+  }
+
+  .hero-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding: 24px;
+    background: rgba(20, 20, 43, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+  }
+
+  .meta-cell .meta-label {
+    font-size: 10px;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .meta-cell .meta-value {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ─── Section ──────────────────────────── */
+  section {
+    padding: 80px 60px;
+    position: relative;
+  }
+
+  .section-num {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--violet-glow);
+    margin-bottom: 16px;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 6px;
+  }
+
+  h2 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+    margin-top: 48px;
+    letter-spacing: -0.02em;
+  }
+
+  h3:first-of-type { margin-top: 32px; }
+
+  p {
+    color: var(--ink-2);
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+
+  p:last-child { margin-bottom: 0; }
+
+  strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ─── Lead Paragraph ───────────────────── */
+  .lead {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 16px;
+    margin: 24px 0 40px;
+    position: relative;
+  }
+
+  .lead strong { color: var(--violet-glow); }
+
+  /* ─── Compare Cards ────────────────────── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .compare-card {
+    padding: 28px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .compare-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, currentColor, transparent);
+    opacity: 0.6;
+  }
+
+  .compare-card.problem { color: #f87171; }
+  .compare-card.problem::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(248, 113, 113, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .compare-card.solution { color: var(--violet-glow); }
+  .compare-card.solution::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .compare-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .compare-card ul {
+    list-style: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .compare-card li {
+    padding: 10px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .compare-card li::before {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    margin-top: 4px;
+    color: white;
+  }
+
+  .compare-card.problem li::before {
+    content: '✕';
+    background: rgba(248, 113, 113, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+  }
+
+  .compare-card.solution li::before {
+    content: '✓';
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--violet-glow);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+  }
+
+  /* ─── Stats Row ────────────────────────── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 32px 0;
+  }
+
+  .stat {
+    padding: 24px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .stat::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--violet) 0%, var(--blue) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .stat:hover::before { opacity: 1; }
+  .stat:hover { transform: translateY(-2px); }
+
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  /* ─── Channels ─────────────────────────── */
+  .channels {
+    margin-top: 24px;
+  }
+
+  .channel-group {
+    margin-bottom: 32px;
+  }
+
+  .channel-group-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .channel-group-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  .channel-row {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+  }
+
+  .channel-row:hover {
+    border-color: var(--border-glow);
+    background: var(--surface-2);
+  }
+
+  .channel-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-4);
+    font-weight: 500;
+  }
+
+  .channel-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .channel-meta {
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border);
+  }
+
+  .pill.active {
+    background: linear-gradient(135deg, var(--violet) 0%, var(--blue) 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  }
+
+  /* ─── Architecture ─────────────────────── */
+  .arch {
+    background: linear-gradient(135deg, rgba(20, 20, 43, 0.8) 0%, rgba(15, 15, 36, 0.8) 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 28px;
+    margin: 32px 0;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+  }
+
+  .arch::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--violet-glow), transparent);
+  }
+
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr 32px 1fr;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .arch-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .arch-col-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .arch-node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: all 0.2s;
+  }
+
+  .arch-node:hover {
+    border-color: var(--violet);
+    transform: translateY(-1px);
+  }
+
+  .arch-node.primary {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border-color: rgba(139, 92, 246, 0.4);
+  }
+
+  .arch-node.future {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    color: var(--ink-4);
+  }
+
+  .arch-node.future small {
+    color: var(--ink-4);
+  }
+
+  .arch-node small {
+    font-size: 10px;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+
+  .arch-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--violet-glow);
+  }
+
+  .arch-arrow svg {
+    width: 20px;
+    height: 20px;
+    filter: drop-shadow(0 0 8px var(--violet-glow));
+  }
+
+  .arch-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend-marker {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+
+  .legend-marker.now {
+    background: linear-gradient(135deg, var(--violet) 0%, var(--blue) 100%);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+  }
+
+  .legend-marker.later {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+  }
+
+  /* ─── Principles ───────────────────────── */
+  .principles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .principle {
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .principle:hover {
+    border-color: var(--border-glow);
+    transform: translateY(-2px);
+  }
+
+  .principle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .principle-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--violet-glow);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .principle h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .principle p {
+    font-size: 13px;
+    color: var(--ink-3);
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  /* ─── KPI ──────────────────────────────── */
+  .kpi-block {
+    margin-bottom: 32px;
+  }
+
+  .kpi-block:last-child { margin-bottom: 0; }
+
+  .kpi-block-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .kpi-block-title::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--violet-glow);
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--violet-glow);
+  }
+
+  .kpi-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 24px;
+    padding: 18px 24px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+
+  .kpi-row:hover {
+    background: var(--surface-2);
+  }
+
+  .kpi-row:last-child { border-bottom: none; }
+
+  .kpi-name {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .kpi-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--violet-glow);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi-note {
+    color: var(--ink-4);
+    font-size: 12px;
+  }
+
+  /* ─── Phases ───────────────────────────── */
+  .phases {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .phase:hover {
+    border-color: var(--border-glow);
+  }
+
+  .phase-marker {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+    padding: 24px 20px;
+    border-left: 1px solid var(--border);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .phase-marker-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: -0.03em;
+  }
+
+  .phase-marker-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+
+  .phase-body {
+    padding: 24px 28px;
+  }
+
+  .phase-body h4 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .phase-body p {
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .phase-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* ─── TOC ──────────────────────────────── */
+  .toc {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .toc-row {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 20px;
+    align-items: start;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+
+  .toc-row:hover { background: var(--surface-2); }
+  .toc-row:last-child { border-bottom: none; }
+
+  .toc-row-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--ink-4);
+    font-weight: 500;
+    padding-top: 2px;
+  }
+
+  .toc-row-content h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .toc-row-content p {
+    font-size: 13px;
+    color: var(--ink-3);
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  .toc-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    height: fit-content;
+    margin-top: 2px;
+    border: 1px solid;
+  }
+
+  .toc-status.included {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+    color: var(--violet-glow);
+    border-color: rgba(139, 92, 246, 0.4);
+  }
+
+  .toc-status.next {
+    background: var(--surface-2);
+    color: var(--ink-3);
+    border-color: var(--border);
+  }
+
+  /* ─── Note Box ─────────────────────────── */
+  .note {
+    margin-top: 32px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    position: relative;
+  }
+
+  .note::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--violet) 0%, var(--blue) 100%);
+    border-radius: 16px 0 0 16px;
+  }
+
+  .note strong { color: var(--violet-glow); }
+
+  /* ─── Footer ───────────────────────────── */
+  .footer {
+    text-align: center;
+    padding: 60px 60px 80px;
+    color: var(--ink-4);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    font-family: 'JetBrains Mono', monospace;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-dot {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    background: var(--violet);
+    border-radius: 50%;
+    margin: 0 8px;
+    vertical-align: middle;
+    box-shadow: 0 0 6px var(--violet);
+  }
+
+  /* ─── Responsive ───────────────────────── */
+  @media (max-width: 768px) {
+    .hero { padding: 80px 24px 60px; }
+    .hero h1 { font-size: 48px; }
+    .hero-sub { font-size: 16px; }
+    .hero-meta { grid-template-columns: 1fr 1fr; }
+    section { padding: 60px 24px; }
+    h2 { font-size: 28px; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .compare { grid-template-columns: 1fr; }
+    .principles { grid-template-columns: 1fr; }
+    .arch-grid { grid-template-columns: 1fr; }
+    .arch-arrow { transform: rotate(-90deg); margin: 4px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc">
+
+  <!-- ───────── HERO ───────── -->
+  <div class="hero">
+    <div class="hero-tag">Executive Brief · v0.1</div>
+    <h1>Datwise<br>Leads Hub</h1>
+    <p class="hero-sub">תשתית פנימית לקליטה, ניהול וניתוב לידים מכל ערוצי השיווק של החברה. למקום אחד, אוטומטית, בלי איבוד נתונים.</p>
+
+    <div class="hero-meta">
+      <div class="meta-cell">
+        <div class="meta-label">VERSION</div>
+        <div class="meta-value">v0.1 Draft</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-label">AUTHOR</div>
+        <div class="meta-value">עמית אורדן</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-label">AUDIENCE</div>
+        <div class="meta-value">CEO · BizDev</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-label">STATUS</div>
+        <div class="meta-value">Awaiting Approval</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── OVERVIEW ───────── -->
+  <section>
+    <span class="section-num">01 / OVERVIEW</span>
+    <h2>תקציר מנהלים</h2>
+
+    <p class="lead"><strong>מטרת הפרויקט:</strong> בניית תשתית פנימית שאוספת לידים מכל ערוצי השיווק של דטוויז למקום אחד, מסננת, מתייגת, ומזרימה אותם אוטומטית לקומיגו. כולל דשבורד פנימי לניטור, סטטיסטיקות וניהול.</p>
+
+    <h3>הבעיה והפתרון</h3>
+
+    <div class="compare">
+      <div class="compare-card problem">
+        <div class="compare-label">המצב כיום</div>
+        <ul>
+          <li>לידים מהאתר נשלחים למייל ולא מסונכרנים אוטומטית לקומיגו</li>
+          <li>הזנה ידנית גוזלת זמן ויוצרת איחורים בתגובה ללקוח</li>
+          <li>אין נראות מרכזית של כל הלידים הנכנסים</li>
+          <li>אין מדידה של ביצועי כל ערוץ שיווק</li>
+          <li>סכנה אמיתית של איבוד לידים בהמולת היומיום</li>
+        </ul>
+      </div>
+      <div class="compare-card solution">
+        <div class="compare-label">אחרי ההטמעה</div>
+        <ul>
+          <li>קליטת לידים אוטומטית מכל מקור תוך שניות</li>
+          <li>תיוג, סינון והעשרה אוטומטיים לכל ליד</li>
+          <li>סנכרון מיידי לקומיגו ללא מגע יד אדם</li>
+          <li>דשבורד מרכזי לצפייה ולניתוח כל הלידים</li>
+          <li>מדדים אמיתיים לכל ערוץ. בסיס להחלטות שיווק חכמות</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>היקף עסקי צפוי</h3>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">50+</div>
+        <div class="stat-label">לידים / חודש</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">&lt;5s</div>
+        <div class="stat-label">טופס לקומיגו</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">כיסוי לידים</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0₪</div>
+        <div class="stat-label">עלות חודשית</div>
+      </div>
+    </div>
+
+    <h3>ערוצי לידים מתוכננים</h3>
+    <p>הפתרון תומך בריבוי מקורות. מתחילים בערוץ אחד ומתרחבים בהדרגה.</p>
+
+    <div class="channels">
+      <div class="channel-group">
+        <div class="channel-group-title">שלב ראשון / V1</div>
+        <div class="channel-row">
+          <div class="channel-num">01</div>
+          <div>
+            <div class="channel-name">אתר Wix</div>
+            <div class="channel-meta">טופס "צור קשר" הראשי</div>
+          </div>
+          <span class="pill active">פעיל</span>
+        </div>
+      </div>
+
+      <div class="channel-group">
+        <div class="channel-group-title">שלבים עתידיים / Roadmap</div>
+        <div class="channel-row">
+          <div class="channel-num">02</div>
+          <div>
+            <div class="channel-name">LinkedIn</div>
+            <div class="channel-meta">Lead Gen Forms מקמפיינים</div>
+          </div>
+          <span class="pill">עתיד</span>
+        </div>
+        <div class="channel-row">
+          <div class="channel-num">03</div>
+          <div>
+            <div class="channel-name">Google Ads</div>
+            <div class="channel-meta">Lead Form Extensions</div>
+          </div>
+          <span class="pill">עתיד</span>
+        </div>
+        <div class="channel-row">
+          <div class="channel-num">04</div>
+          <div>
+            <div class="channel-name">תערוכות וכנסים</div>
+            <div class="channel-meta">טופס דיגיטלי לנציגים בשטח</div>
+          </div>
+          <span class="pill">עתיד</span>
+        </div>
+        <div class="channel-row">
+          <div class="channel-num">05</div>
+          <div>
+            <div class="channel-name">WhatsApp Business</div>
+            <div class="channel-meta">קליטה אוטומטית של פניות</div>
+          </div>
+          <span class="pill">עתיד</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── ARCHITECTURE ───────── -->
+  <section>
+    <span class="section-num">02 / ARCHITECTURE</span>
+    <h2>ארכיטקטורת המערכת</h2>
+    <p>המערכת בנויה משלוש שכבות: <strong>מקורות לידים</strong> (Inputs), <strong>שכבת עיבוד וניהול</strong> (Hub), ו<strong>יעדים</strong> (Outputs). שכבת ה-Hub היא הליבה. היא מקבלת לידים מכל מקור, מעבדת אותם, ומפיצה למקומות הנכונים.</p>
+
+    <div class="arch">
+      <div class="arch-grid">
+        <div class="arch-col">
+          <div class="arch-col-title">SOURCES</div>
+          <div class="arch-node primary">אתר Wix<small>טופס צור קשר</small></div>
+          <div class="arch-node future">LinkedIn<small>Lead Forms</small></div>
+          <div class="arch-node future">Google Ads<small>Lead Forms</small></div>
+          <div class="arch-node future">תערוכות<small>טפסי שטח</small></div>
+        </div>
+
+        <div class="arch-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </div>
+
+        <div class="arch-col">
+          <div class="arch-col-title">HUB / CORE</div>
+          <div class="arch-node primary">אימות ואבטחה</div>
+          <div class="arch-node primary">סינון ספאם</div>
+          <div class="arch-node primary">העשרת נתונים</div>
+          <div class="arch-node primary">תיוג וניתוב</div>
+          <div class="arch-node primary">דשבורד ניהול</div>
+          <div class="arch-node primary">אחסון ולוגים</div>
+        </div>
+
+        <div class="arch-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </div>
+
+        <div class="arch-col">
+          <div class="arch-col-title">DESTINATIONS</div>
+          <div class="arch-node primary">קומיגו<small>CRM ראשי</small></div>
+          <div class="arch-node primary">התראות צוות<small>Slack / WhatsApp</small></div>
+          <div class="arch-node future">כלי שיווק<small>Mailchimp</small></div>
+          <div class="arch-node future">BI ואנליטיקה<small>דוחות הנהלה</small></div>
+        </div>
+      </div>
+
+      <div class="arch-legend">
+        <div class="legend-item">
+          <div class="legend-marker now"></div>
+          <span>נכלל ב-V1</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-marker later"></div>
+          <span>הרחבה עתידית</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>עקרונות תכנון</h3>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="principle-num">/ 01</div>
+        <h4>מודולריות</h4>
+        <p>הוספת מקור או יעד חדש אינה דורשת בנייה מחדש. רק חיבור מודול נוסף ל-Hub הקיים.</p>
+      </div>
+      <div class="principle">
+        <div class="principle-num">/ 02</div>
+        <h4>שליטה פנימית</h4>
+        <p>הקוד והתשתית בבעלות מלאה של דטוויז. אין תלות בספק חיצוני שיכול לשנות תמחור או להפסיק שירות.</p>
+      </div>
+      <div class="principle">
+        <div class="principle-num">/ 03</div>
+        <h4>שקיפות וניטור</h4>
+        <p>כל ליד שעובר במערכת מתועד. מקור, זמן, סטטוס עיבוד, וסטטוס בקומיגו.</p>
+      </div>
+      <div class="principle">
+        <div class="principle-num">/ 04</div>
+        <h4>אבטחת מידע</h4>
+        <p>אימות בקשות, סינון ספאם, אחסון מאובטח. פרטי גישה לקומיגו שמורים בצד שרת בלבד.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── METRICS ───────── -->
+  <section>
+    <span class="section-num">03 / METRICS</span>
+    <h2>מדדי הצלחה</h2>
+    <p>הצלחת הפרויקט תימדד לפי שני סוגי מדדים: <strong>תפעוליים</strong> שמודדים את ביצועי המערכת, ו<strong>עסקיים</strong> שמודדים את ההשפעה על העסק.</p>
+
+    <div class="kpi-block">
+      <div class="kpi-block-title">מדדים תפעוליים</div>
+      <div class="kpi-table">
+        <div class="kpi-row">
+          <div class="kpi-name">זמן תגובה ממוצע</div>
+          <div class="kpi-value">&lt; 5s</div>
+          <div class="kpi-note">מטופס לקומיגו</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">זמינות (Uptime)</div>
+          <div class="kpi-value">99.5%</div>
+          <div class="kpi-note">SLA יעד</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">שיעור איבוד לידים</div>
+          <div class="kpi-value">0%</div>
+          <div class="kpi-note">כל ליד מתועד</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">דיוק סינון ספאם</div>
+          <div class="kpi-value">&gt; 95%</div>
+          <div class="kpi-note">זיהוי אמין</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-block">
+      <div class="kpi-block-title">מדדים עסקיים</div>
+      <div class="kpi-table">
+        <div class="kpi-row">
+          <div class="kpi-name">קיצור זמן מענה ראשוני</div>
+          <div class="kpi-value">80%+</div>
+          <div class="kpi-note">מול המצב היום</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">חיסכון בזמן הזנה ידני</div>
+          <div class="kpi-value">~5h / mo</div>
+          <div class="kpi-note">שווה ערך עבודה</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">נראות מקורות לידים</div>
+          <div class="kpi-value">100%</div>
+          <div class="kpi-note">מדידה לכל ערוץ</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">בסיס לאופטימיזציה</div>
+          <div class="kpi-value">DATA</div>
+          <div class="kpi-note">להחלטות שיווק</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── ROADMAP ───────── -->
+  <section>
+    <span class="section-num">04 / ROADMAP</span>
+    <h2>שלבי הפרויקט</h2>
+    <p>הפרויקט מחולק לשלושה שלבים. מ-Prototype מקומי דרך אישור אבטחת מידע ועד עליה לאוויר.</p>
+
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-marker">
+          <div class="phase-marker-num">01</div>
+          <div class="phase-marker-label">BUILD</div>
+        </div>
+        <div class="phase-body">
+          <h4>פיתוח Prototype מקומי</h4>
+          <p>בניית כל התשתית במחשב הפרטי, כולל שרת ביניים, דשבורד מעוצב, Mock של ה-API של קומיגו, ובדיקות end-to-end. הפרויקט יהיה מוכן להדגמה חיה ללא חיבור לשרתי החברה.</p>
+          <div class="phase-tags">
+            <span class="pill">Next.js</span>
+            <span class="pill">React</span>
+            <span class="pill">RTL + EN</span>
+            <span class="pill">Mock API</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-marker">
+          <div class="phase-marker-num">02</div>
+          <div class="phase-marker-label">REVIEW</div>
+        </div>
+        <div class="phase-body">
+          <h4>סקירת מנכ״ל ואבטחת מידע</h4>
+          <p>הצגת ה-Prototype למנכ״ל, אישור עקרוני, ולאחר מכן העברה לצוות אבטחת המידע של דטוויז לבדיקה ולאישור התשתית, מבנה האימות, ושמירת המידע.</p>
+          <div class="phase-tags">
+            <span class="pill">Demo</span>
+            <span class="pill">Security</span>
+            <span class="pill">Code Review</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-marker">
+          <div class="phase-marker-num">03</div>
+          <div class="phase-marker-label">LAUNCH</div>
+        </div>
+        <div class="phase-body">
+          <h4>חיבור לסביבת ייצור</h4>
+          <p>קבלת API מאוריגמי/קומיגו, חיבור ה-Webhook ב-Wix לשרת הייצור, העברה לסביבת החברה, בדיקות סופיות, והשקה הדרגתית.</p>
+          <div class="phase-tags">
+            <span class="pill">Comigo API</span>
+            <span class="pill">Wix Webhook</span>
+            <span class="pill">Soft Launch</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>הערה לגבי לוח זמנים:</strong> שלב 1 בלתי תלוי בגורמים חיצוניים ויכול להתחיל מיידית. שלב 3 תלוי בקבלת API מקומיגו. לכן ההמלצה היא לפתוח במקביל את ערוץ התקשורת עם אוריגמי במהלך שלב 1.
+    </div>
+  </section>
+
+  <!-- ───────── PRD STRUCTURE ───────── -->
+  <section>
+    <span class="section-num">05 / PRD STRUCTURE</span>
+    <h2>מבנה ה-PRD המלא</h2>
+    <p>המסמך הנוכחי הוא <strong>תקציר מנהלים</strong> לאישור עקרוני. בכפוף לאישור, יוכן PRD מלא בן 11 פרקים שיהווה את ה-source of truth לפיתוח, לעיצוב ולבדיקות.</p>
+
+    <div class="toc">
+      <div class="toc-row">
+        <div class="toc-row-num">01</div>
+        <div class="toc-row-content">
+          <h4>Executive Summary</h4>
+          <p>תקציר מנהלים, מטרת הפרויקט, ערך עסקי צפוי, וקריאה לפעולה.</p>
+        </div>
+        <span class="toc-status included">נכלל</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">02</div>
+        <div class="toc-row-content">
+          <h4>Problem Statement</h4>
+          <p>תיאור מפורט של הבעיה, השלכותיה התפעוליות, וההיקף הכמותי של ההפסד הקיים.</p>
+        </div>
+        <span class="toc-status included">נכלל</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">03</div>
+        <div class="toc-row-content">
+          <h4>Goals &amp; Success Metrics</h4>
+          <p>הגדרת יעדים מדידים, KPIs תפעוליים ועסקיים, ושיטות מדידה.</p>
+        </div>
+        <span class="toc-status included">נכלל</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">04</div>
+        <div class="toc-row-content">
+          <h4>User Personas</h4>
+          <p>פרסונות המשתמשים: מנהל תמיכת לקוחות, נציגי מכירות, מנכ״ל. צרכים, מטרות, ונקודות כאב לכל אחד.</p>
+        </div>
+        <span class="toc-status next">בעתיד</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">05</div>
+        <div class="toc-row-content">
+          <h4>User Stories &amp; Flows</h4>
+          <p>זרימות משתמש מפורטות מ"לקוח ממלא טופס" ועד "נציג רואה את הליד בדשבורד".</p>
+        </div>
+        <span class="toc-status next">בעתיד</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">06</div>
+        <div class="toc-row-content">
+          <h4>Functional Requirements</h4>
+          <p>כל הפיצ׳רים בפירוט: קליטת לידים, סינון, תיוג, ניתוב, התראות, דשבורד, דוחות, הרשאות.</p>
+        </div>
+        <span class="toc-status next">בעתיד</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">07</div>
+        <div class="toc-row-content">
+          <h4>Non-Functional Requirements</h4>
+          <p>דרישות אבטחה, ביצועים, זמינות, scalability, שפות תמיכה, ונגישות.</p>
+        </div>
+        <span class="toc-status next">בעתיד</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">08</div>
+        <div class="toc-row-content">
+          <h4>Technical Architecture</h4>
+          <p>סטאק טכנולוגי, מבנה השרת, מבנה בסיס הנתונים, אבטחה, ניהול סודות, deployment.</p>
+        </div>
+        <span class="toc-status included">נכלל</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">09</div>
+        <div class="toc-row-content">
+          <h4>UI/UX Design &amp; Mockups</h4>
+          <p>מוקאפים מלאים של כל המסכים, design system, אנימציות ומיקרו-אינטראקציות.</p>
+        </div>
+        <span class="toc-status next">בעתיד</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">10</div>
+        <div class="toc-row-content">
+          <h4>Roadmap &amp; Milestones</h4>
+          <p>תכנון מפורט של שלבי הפיתוח, אבני דרך, ולוח זמנים מקצה לקצה.</p>
+        </div>
+        <span class="toc-status included">נכלל</span>
+      </div>
+
+      <div class="toc-row">
+        <div class="toc-row-num">11</div>
+        <div class="toc-row-content">
+          <h4>Risks &amp; Open Questions</h4>
+          <p>זיהוי סיכונים, אסטרטגיות הפחתה, ושאלות פתוחות שדורשות החלטה לפני תחילת הפיתוח.</p>
+        </div>
+        <span class="toc-status next">בעתיד</span>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>הצעד הבא:</strong> בכפוף לאישור עקרוני של מסמך זה, אכין את ה-PRD המלא + מוקאפים סופיים של כל מסכי הדשבורד, ואז אעבור לשלב 1 של פיתוח ה-Prototype במחשב הפרטי.
+    </div>
+  </section>
+
+  <div class="footer">
+    DATWISE LEADS HUB <span class="footer-dot"></span> v0.1 <span class="footer-dot"></span> INTERNAL <span class="footer-dot"></span> CONFIDENTIAL
+  </div>
+
+</div>
+
+</body>
+</html>
